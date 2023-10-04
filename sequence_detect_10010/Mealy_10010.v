@@ -13,13 +13,11 @@
 module Mealy_10010 #(
     parameter REPEAT = 1'b1         // 1:重复检测   0:非重复检测
 )(
-    input       data_in,
-    input       clk,
-    input       rst_n,
-    output      data_out
+    input           data_in,
+    input           clk,
+    input           rst_n,
+    output  reg     data_out
 );
-
-    reg         data_out;
 
     reg [2:0]   current_state;
     reg [2:0]   next_state;

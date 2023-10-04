@@ -31,7 +31,7 @@ module Moore_10010_tb;
         .clk        (clk),
         .rst_n      (rst_n),
         .data_out   (data_out0)
-    )
+    );
 
     Moore_10010 #(
         .REPEAT (REPEAT1)
@@ -40,5 +40,5 @@ module Moore_10010_tb;
         .clk        (clk),
         .rst_n      (rst_n),
         .data_out   (data_out1)
-    )
+    );
 endmodule
