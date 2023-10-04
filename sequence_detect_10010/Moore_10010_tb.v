@@ -13,12 +13,12 @@ module Moore_10010_tb;
     parameter REPEAT1 = 1'b0;               // 非重复检测
 
     initial begin
-        clk = 1'b1;
-        rst_n = 1'b0;
-        data_in = 1'b0;
-        # 30 rst_n = 1'b1;
+        clk <= 1'b1;
+        rst_n <= 1'b0;
+        data_in <= 1'b0;
+        #30 rst_n <= 1'b1;
         forever begin
-            #20 data_in = {{$random} % 2};  // 生成1bit随机数
+            #20 data_in <= ({$random} % 2);  // 生成1bit随机数
         end
     end
 
@@ -41,3 +41,4 @@ module Moore_10010_tb;
         .rst_n      (rst_n),
         .data_out   (data_out1)
     )
+endmodule
