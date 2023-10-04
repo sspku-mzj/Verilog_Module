@@ -11,7 +11,7 @@
 // 非重复检测: 输入0跳转到状态 IDLE, 输入1跳转到状态 A
 
 module Moore_10010 #(
-    parameter REPEAT = 1'b1;                // 1:重复检测   0:非重复检测
+    parameter REPEAT = 1'b1                // 1:重复检测   0:非重复检测
 )(
     input   data_in,
     input   clk,
