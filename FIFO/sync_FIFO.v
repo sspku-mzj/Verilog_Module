@@ -122,5 +122,64 @@ module sync_FIFO #(
             end
 
             assign next_rptr = (rptr[AW-1:0] == MAX_ADDR) ? {~rptr[AW], {AW{1'b0}}} : rptr + 1'b1;
+            always @(posedge i_clk or negedge i_rst_n) begin
+                if(!i_rst_n) begin
+                    rptr <= {(AW+1){1'b0}};
+                end else if(i_flush) begin
+                    rptr <= {(AW+1){1'b0}};
+                end else if(i_pop) begin
+                    rptr <= next_rptr;
+                end
+            end
+
+            assign rptr_msb = rptr[AW];
+            assign wptr_msb = wptr[AW];
+
+            assign next_wptr_msb = next_wptr[AW];
+
+            // empty and full
+            always @(posedge i_clk or negedge i_rst_n) begin
+                if(!i_rst_n) begin
+                    empty <= 1'b1;
+                    not_empty <= 1'b0;
+                end else if(i_flush) begin
+                    empty <= 1'b1;
+                    not_empty <= 1'b0;
+                end else if(!push && (rptr == wptr)) begin
+                    empty <= 1'b1;
+                    not_empty <= 1'b0;
+                end else if(i_push && !i_pop && (rptr == wptr)) begin
+                    empty <= 1'b0;
+                    not_empty <= 1'b1;
+                end else if(!i_push && i_pop && (next_rptr == wptr)) begin
+                    empty <= 1'b1;
+                    not_empty <= 1'b0;
+                end
+            end
+
+            always @(posedge i_clk or negedge i_rst_n) begin
+                if(!i_rst_n) begin
+                    full <= 1'b0;
+                    not_full <= 1'b1;
+                end else if(i_flush) begin
+                    full <= 1'b0;
+                    not_full <= 1'b1;
+                end else if(!pop && (wptr[AW-1:0] == rptr[AW-1:0]) && (wptr_msb != rptr_msb)) begin
+                    full <= 1'b1;
+                    not_full <= 1'b0;
+                end else if(i_pop && !push && (wptr[AW-1:0] == rptr[AW-1:0]) && (wptr_msb != rptr_msb)) begin
+                    full <= 1'b0;
+                    not_full <= 1'b1;
+                end else if(!i_pop && i_push && (next_wptr[AW-1:0] == rptr[AW-1:0]) && (next_wptr_msb != rptr_msb)) begin
+                    full <= 1'b1;
+                    not_full <= 1'b0;
+                end
+            end
+
+            assign o_empty = empty;
+            assign o_full = full;
+            assign o_not_empty = not_empty;
+            assign o_not_full = not_full;
         end
     endgenerate
+endmodule
