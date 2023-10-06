@@ -40,36 +40,33 @@ module async_fifo #(
 
     reg     [WIDTH-1:0] r_rdata;
 
+    reg    [AW:0]      wptr_gc;
+    reg    [AW:0]      rptr_gc;
     // write and read operation
-    assign next_wptr = wptr[AW-1:0] == MAX_ADDR ? (~wptr, {AW{1'b0}}) : wptr + 1'b1; 
+    assign next_wptr = wptr + 1'b1; 
     always @(posedge i_wclk or negedge i_wrst_n) begin
         if(!i_wrst_n)
             wptr <= {(AW+1){1'b0}};
+            wptr_gc <= {(AW+1){1'b0}}; 
         else if(i_push && !o_full) begin
             mem[wptr[AW-1:0]] <= i_wdata;
             wptr <= next_wptr;
-        end else 
-            wptr <= wptr;
+            wptr_gc <= next_wptr ^ {1'b0, next_wptr[AW-1:0]};
+        end 
     end
 
-    assign next_rptr = rptr[AW-1:0] == MAX_ADDR ? (~rptr, {AW{1'b0}}) : rptr + 1'b1;
+    assign next_rptr = rptr + 1'b1;
     always @(posedge i_rclk or negedge i_rrst_n) begin
         if(!i_rrst_n)
             rptr <= {(AW+1){1'b0}};
+            rptr_gc <= {(AW+1){1'b0}};
         else if(i_pop && !o_empty)
             o_rdata <= mem[rptr[AW-1:0]];
             rptr <= next_rptr;
-        else 
-            rptr <= rptr;
+            rptr_gc <= next_rptr ^ {1'b0, next_rptr[AW-1:0]};
     end
 
-    // gray code
-    wire    [AW:0]      wptr_gc;
-    wire    [AW:0]      rptr_gc;
-
-    assign  wptr_gc = wptr ^ (wptr >> 1);
-    assign  rptr_gc = rptr ^ (rptr >> 1);
-
+    // gray code 
     reg     [AW:0]      wptr_gc_d1, wptr_gc_d2;
     reg     [AW:0]      rptr_gc_d1, rptr_gc_d2;
 
