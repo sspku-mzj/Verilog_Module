@@ -68,7 +68,7 @@ module sync_fifo #(
                     r_not_empty <= 1'b0;
                     r_full <= 1'b0;
                     r_not_full <= 1'b1;
-                end else begin
+                end else begin                                                      
                     case({i_pop, i_push})                                           // 这里很重要的一点是,时序电路中,逻辑不全会补充触发器使数据不变,而组合电路会产生锁存器
                         2'01 : begin
                             r_rdata <= i_wdata;
@@ -83,12 +83,12 @@ module sync_fifo #(
                             r_full <= 1'b0;
                             r_not_full <= 1'b1;
                         end
-                        2'b11 : begin
+                        2'b11 : begin                                               // 这里是先pop,再push,r_rdata去读push进去的数据
                             r_rdata <= i_wdata;
-                            r_empty <= 1'b1;
-                            r_not_empty <= 1'b0;
-                            r_full <= 1'b0;
-                            r_not_full <= 1'b1;
+                            r_empty <= 1'b0;
+                            r_not_empty <= 1'b1;
+                            r_full <= 1'b1;
+                            r_not_full <= 1'b0;
                         end
                     endcase         
                 end
@@ -102,12 +102,18 @@ module sync_fifo #(
         else begin :
             // write and read data
             always @(posedge i_clk) begin
-                if(i_push) begin
+                if(i_push && !full) begin
                     mem[wptr[AW-1:0]] <= i_wdata;
                 end
             end
 
-            assign o_rdata = mem[rptr[AW-1:0]];
+            // always @(posedge i_clk) begin
+            //     if(i_pop && !empty)begin
+            //         o_rdata = mem[rptr[AW-1:0]];
+            //     end
+            // end
+            assign o_rdata = mem[rptr[AW-1:0]];                             // 这里可以外部模块根据o_not_empty和读使能信号决断
+            
 
             // write and read pointer
             assign next_wptr = (wptr[AW-1:0] == MAX_ADDR) ? {~wptr[AW], {AW{1'b0}}} : wptr + 1'b1;
