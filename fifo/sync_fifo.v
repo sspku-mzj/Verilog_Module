@@ -107,7 +107,7 @@ module sync_fifo #(
                 end
             end
 
-            // always @(posedge i_clk) begin
+            // always @(posedge i_clk) begin                                // 组合逻辑可以读指针与读数据同拍出,时序逻辑读数据要慢一拍
             //     if(i_pop && !empty)begin
             //         o_rdata = mem[rptr[AW-1:0]];
             //     end
