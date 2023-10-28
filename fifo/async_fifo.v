@@ -84,6 +84,8 @@ module async_fifo #(
     // 空判断: 读时钟与经过cdc的写时钟进行判断,慢采快,有影响
     // 本身写时钟经过cdc,所以实际写时钟 > 进行判断的写时钟,同时如果发生漏采情况也会出现实际写时钟 > 进行判断的写时钟
     // 所以此时如果判断为空,实际FIFO内部仍然存在数据,但是已经禁止读出数据,属于假空,假满同理
+    // ----------------------------------同步器失效--------------------------------------------------------
+    // 最糟糕的情况时同步器失效,传输错误的数据,由于是格雷码所以地址不变即为错误数据,此时依旧不影响判断空满,同样产生假空假满现象
     reg     [AW:0]      wptr_gc_d1, wptr_gc_d2;
     reg     [AW:0]      rptr_gc_d1, rptr_gc_d2;
 
@@ -128,7 +130,7 @@ module async_fifo #(
     //end
 
     assign full = (wptr_gc[AW] != rptr_gc_d2[AW]) && (wptr_gc[AW-1] != rptr_gc_d2[AW-1]) && (wptr_gc[AW-2:0] == rptr_gc_d2[AW-2:0]);
-    
+
     assign empty = rptr_gc[AW:0] == wptr_gc_d2[AW:0];
 
     assign o_full = full;
