@@ -1,7 +1,7 @@
 `timescale  1ns/1ns
 module async_fifo_tb;
 
-    parameter WITH = 16;
+    parameter WIDTH = 16;
     parameter DEPTH = 2;
 
     reg i_wclk, i_wrst_n, i_push;
@@ -56,10 +56,9 @@ module async_fifo_tb;
         @(negedge i_rclk)
             i_pop = 1'b1;
         
-        repeat(1) begin
+        //repeat(1) begin
             @(negedge i_rclk)
-
-        end
+        //end
 
         @(negedge i_rclk)
             i_pop = 1'b0;
@@ -82,4 +81,16 @@ module async_fifo_tb;
         $finish;
         
     end
+    async_fifo async_fifo(
+        .i_wclk(i_wclk),
+        .i_rclk(i_rclk),
+        .i_wrst_n(i_wrst_n),
+        .i_rrst_n(i_rrst_n),
+        .i_wdata(i_wdata),
+        .i_push(i_push),
+        .i_pop(i_pop),
+        .o_full(o_full),
+        .o_empty(o_empty),
+        .o_rdata(o_rdata)
+    );
 endmodule

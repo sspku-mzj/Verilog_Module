@@ -1,7 +1,7 @@
 // 异步fifo
 // 写控制端, 读控制端, fifo memory, 时钟同步
 module async_fifo #(
-    parameter WIDTH = 16;
+    parameter WIDTH = 16,
     parameter DEPTH = 2
 ) (
     input               i_wclk,
@@ -13,7 +13,7 @@ module async_fifo #(
     input               i_pop,
     output              o_full,
     output              o_empty,
-    output  [WIDTH-1:0] o_rdata
+    output  reg [WIDTH-1:0] o_rdata
 );
     localparam          AW = ((DEPTH <= 2) ? 1 : 
                               (DEPTH <= 4) ? 2 :
@@ -43,17 +43,20 @@ module async_fifo #(
     reg     [AW:0]      wptr_gc;
     reg     [AW:0]      rptr_gc;
 
-    reg     [:0]        i;
+    reg     [AW-1:0]        i;
+    
+    
 
     // write and read operation
     assign next_wptr = wptr + 1'b1; 
     always @(posedge i_wclk or negedge i_wrst_n) begin
-        if(!i_wrst_n)
+        if(!i_wrst_n) begin
             for (i = 0; i < DEPTH - 1; i=i+1) begin
                 mem[i[AW-1:0]] <= {WIDTH{1'b0}};
             end
             wptr <= {(AW+1){1'b0}};
-            wptr_gc <= {(AW+1){1'b0}}; 
+            wptr_gc <= {(AW+1){1'b0}};
+        end 
         else if(i_push && !o_full) begin
             mem[wptr[AW-1:0]] <= i_wdata;
             wptr <= next_wptr;
@@ -63,13 +66,15 @@ module async_fifo #(
 
     assign next_rptr = rptr + 1'b1;
     always @(posedge i_rclk or negedge i_rrst_n) begin
-        if(!i_rrst_n)
+        if(!i_rrst_n) begin
             rptr <= {(AW+1){1'b0}};
             rptr_gc <= {(AW+1){1'b0}};
-        else if(i_pop && !o_empty)
+        end
+        else if(i_pop && !o_empty) begin
             o_rdata <= mem[rptr[AW-1:0]];
             rptr <= next_rptr;
             rptr_gc <= next_rptr ^ {1'b0, next_rptr[AW:1]};
+        end
     end
     // ----------------------------------------------------------------------------------------------------
     // ------------------------------------假空,假满--------------------------------------------------------
@@ -110,7 +115,7 @@ module async_fifo #(
     end
 
     // full and empty flag
-    reg  full, empty;
+    wire  full, empty;
     //always @(posedge i_wclk or negedge i_wrst_n) begin
     //    if(!i_wrst_n)
     //        full <= 1'b0;
