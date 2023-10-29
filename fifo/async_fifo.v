@@ -2,7 +2,7 @@
 // 写控制端, 读控制端, fifo memory, 时钟同步
 module async_fifo #(
     parameter WIDTH = 16,
-    parameter DEPTH = 2
+    parameter DEPTH = 8
 ) (
     input               i_wclk,
     input               i_rclk,
@@ -51,7 +51,7 @@ module async_fifo #(
     assign next_wptr = wptr + 1'b1; 
     always @(posedge i_wclk or negedge i_wrst_n) begin
         if(!i_wrst_n) begin
-            for (i = 0; i < DEPTH - 1; i=i+1) begin
+            for (i = 0; i < DEPTH; i=i+1) begin
                 mem[i[AW-1:0]] <= {WIDTH{1'b0}};
             end
             wptr <= {(AW+1){1'b0}};

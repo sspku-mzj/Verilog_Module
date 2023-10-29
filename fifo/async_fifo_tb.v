@@ -2,7 +2,7 @@
 module async_fifo_tb;
 
     parameter WIDTH = 16;
-    parameter DEPTH = 2;
+    parameter DEPTH = 8;
 
     reg i_wclk, i_wrst_n, i_push;
     reg i_rclk, i_rrst_n, i_pop;

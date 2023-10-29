@@ -70,7 +70,7 @@ module sync_fifo #(
                     r_not_full <= 1'b1;
                 end else begin                                                      
                     case({i_pop, i_push})                                           // 这里很重要的一点是,时序电路中,逻辑不全会补充触发器使数据不变,而组合电路会产生锁存器
-                        2'01 : begin
+                        2'b01 : begin
                             r_rdata <= i_wdata;
                             r_empty <= 1'b0;
                             r_not_empty <= 1'b1;
@@ -99,7 +99,7 @@ module sync_fifo #(
             assign o_empty      = r_empty;
             assign o_not_empty  = r_not_empty;
         end
-        else begin :
+        else begin
             // write and read data
             always @(posedge i_clk) begin
                 if(i_push && !full) begin
@@ -151,7 +151,7 @@ module sync_fifo #(
                 end else if(i_flush) begin
                     empty <= 1'b1;
                     not_empty <= 1'b0;
-                end else if(!push && (rptr == wptr)) begin
+                end else if(!i_push && (rptr == wptr)) begin
                     empty <= 1'b1;
                     not_empty <= 1'b0;
                 end else if(i_push && !i_pop && (rptr == wptr)) begin
@@ -170,10 +170,10 @@ module sync_fifo #(
                 end else if(i_flush) begin
                     full <= 1'b0;
                     not_full <= 1'b1;
-                end else if(!pop && (wptr[AW-1:0] == rptr[AW-1:0]) && (wptr_msb != rptr_msb)) begin
+                end else if(!i_pop && (wptr[AW-1:0] == rptr[AW-1:0]) && (wptr_msb != rptr_msb)) begin
                     full <= 1'b1;
                     not_full <= 1'b0;
-                end else if(i_pop && !push && (wptr[AW-1:0] == rptr[AW-1:0]) && (wptr_msb != rptr_msb)) begin
+                end else if(i_pop && !i_push && (wptr[AW-1:0] == rptr[AW-1:0]) && (wptr_msb != rptr_msb)) begin
                     full <= 1'b0;
                     not_full <= 1'b1;
                 end else if(!i_pop && i_push && (next_wptr[AW-1:0] == rptr[AW-1:0]) && (next_wptr_msb != rptr_msb)) begin
