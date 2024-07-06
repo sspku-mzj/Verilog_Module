@@ -1,3 +1,7 @@
+// this module use pointer to argue the empty and full flag
+// it is difficult to argue the empty and full flag in this module
+// main reason is empty to full or full to empty is hard to deal, especially i_wren && i_rden
+// thus, i_wren and i_rden generate can be controlled by outer interface
 `timescale 1ns/1ps
 module sync_fifo #(
     parameter WIDTH = 32,
