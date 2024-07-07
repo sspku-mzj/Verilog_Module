@@ -110,6 +110,7 @@ module async_fifo #(
     end
 
     // full and empty flag
+    // gray_wptr and gray_rptr(try)
     assign o_full = (next_gray_wptr == {~gray_rptr_d2[AW:AW-1], gray_rptr_d2[AW-2:0]}) ? 1'b1 : 1'b0;
     assign o_empty = (next_gray_rptr == gray_wptr_d2) ? 1'b1 : 1'b0;
 
